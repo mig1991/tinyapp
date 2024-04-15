@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/mig1991/tinyapp/issues"
   },
-  "homepage": "https://github.com/mig1991/tinyapp#readme"
+  "homepage": "https://github.com/mig1991/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
 }
