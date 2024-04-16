@@ -1,36 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
-  <title>URL Details</title>
-</head>
-<body>
-  <%- include('partials/_header') %>
-  <main style="margin: 1em;">
-    <h2>URL Details</h2>
-    <!-- display shortened url id. `id` is passed from express_server.js -->
-    <p><strong>Shortened URL ID:</strong> <%= id %></p>
-     <!-- display original URL and make it a clickable link that opens in a new tab -->
-    <p><strong>Original URL:</strong> <a href="<%= longURL %>" target="_blank"><%= longURL %></a></p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    />
+    <title>URL Details</title>
+  </head>
+  <body>
+    <%- include('partials/_header') %>
+    <main style="margin: 1em">
+      <h2>URL Details</h2>
+      <!-- display shortened url id. `id` is passed from express_server.js -->
+      <p><strong>Shortened URL ID:</strong> <%= id %></p>
+      <!-- display original URL and make it a clickable link that opens in a new tab -->
+      <p>
+        <strong>Original URL:</strong>
+        <a href="<%= longURL %>" target="_blank"><%= longURL %></a>
+      </p>
 
-    <!-- update url -->
-    <form action="/urls/<%= id %>" method="POST">
-      <!-- Form for updating the existing url.
-         form POSTs data to `/urls/<id>`, where `<id>` is the id of the url to update -->
-      <div class="form-group">
-        <label for="newLongURL">Update URL:</label>
-        <input type="text" id="newLongURL" name="newLongURL" class="form-control" value="<%= longURL %>" required>
-        <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Submit</button>
-      </div>
-    </form>
+      <!-- update url -->
+      <form action="/urls/<%= id %>" method="POST">
+        <!-- Form for updating the existing url.
+          form POSTs data to `/urls/<id>`, where `<id>` is the id of the url to update -->
+        <div class="form-group">
+          <label for="newLongURL">Update URL:</label>
+          <input
+            type="text"
+            id="newLongURL"
+            name="newLongURL"
+            class="form-control"
+            value="<%= longURL %>"
+            required
+          />
+          <button
+            type="submit"
+            class="btn btn-primary"
+            style="margin-top: 10px"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
 
-    <a href="/urls" class="btn btn-primary" style="margin-top: 20px;">Back to URLs List</a>
-  </main>
+      <a href="/urls" class="btn btn-primary" style="margin-top: 20px"
+        >Back to URLs List</a
+      >
+    </main>
 
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-</body>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  </body>
 </html>
