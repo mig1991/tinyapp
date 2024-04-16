@@ -1,90 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
     <!-- Bootstrap CSS -->
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
-      crossorigin="anonymous"
-    />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous" />
     <title>TinyApp</title>
     <style>
-      body, html {
-          height: 100%; /* Required to make the body take full page height */
-          margin: 0; /* Removes default margin */
-          font-family: 'Arial', sans-serif;
-          color: #ffffff;
-      }
-      body::after {
-          content: ""; /* Required for pseudo-elements */
-          background: url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1686&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center fixed; /* Replace 'your-image-url.jpg' with your image path */
-          background-size: cover; /* Cover the entire page */
-          opacity: 0.5; /* Adjust opacity for translucency */
-          top: 0;
-          left: 0;
-          bottom: 0;
-          right: 0;
-          position: absolute;
-          z-index: -1; /* Sit behind the content */
-      }
-      h3 {
-          margin-top: 20px;
-          margin-bottom: 20px;
-      }
-      .table thead th {
-          color: #ffffff;
-      }
-      .container, .footer {
-          background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for content areas */
-          padding: 15px;
-          border-radius: 8px;
-      }
-  </style>
-  </head>
-  <body>
+        body, html {
+            height: 100%; /* Required to make the body take full page height */
+            margin: 0; /* Removes default margin */
+            font-family: 'Arial', sans-serif;
+            color: #ffffff;
+        }
+        body::after {
+            content: ""; /* Required for pseudo-elements */
+            background: url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1686&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center fixed; /* Background image */
+            background-size: cover; /* Cover the entire page */
+            opacity: 0.5; /* Adjust opacity for translucency */
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            position: absolute;
+            z-index: -1; /* Sit behind the content */
+        }
+        h3 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .table thead th {
+            color: #ffffff;
+        }
+        .container, .footer {
+            background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for content areas */
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
     <%- include('partials/_header') %>
-    <div class="container" style="margin-top: 20px;">  <!-- testing -->
-      <h3>My URLs</h3>
-      <a href="#" class="btn btn-success mb-3"><i class="fas fa-plus-circle"></i> Create New Short URL</a> <!--adds awesome icons-->
-      <table class="table table-hover table-striped"> <!-- testing -->
-        <thead>
-          <tr>
-            <th scope="col">Short URL ID</th>
-            <th scope="col">Long URL</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% Object.keys(urls).forEach(function(id) { %>
-            <tr>
-              <td><%= id %></td>
-              <td><%= urls[id] %></td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    </main>
+    <div class="container" style="margin-top: 20px;">
+        <h3>My URLs</h3>
+        <a href="/urls/new" class="btn btn-success mb-3"><i class="fas fa-plus-circle"></i> Create New Short URL</a>
+        <table class="table table-hover table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Short URL ID</th>
+                    <th scope="col">Long URL</th>
+                    <th scope="col">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% Object.keys(urls).forEach(function(id) { %>
+                <tr>
+                    <td><%= id %></td>
+                    <td><a href="<%= urls[id] %>" target="_blank"><%= urls[id] %></a></td>
+                    <td>
+                        <form method="POST" action="/urls/<%= id %>/delete" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
     <!-- Bootstrap JS -->
-    <script
-      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-      crossorigin="anonymous"
-    ></script>
-  </body>
-</html>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src=

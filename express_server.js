@@ -60,6 +60,12 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post('/urls/:id/delete', (req, res) => {
+  const { id } = req.params; // extract id from the url
+  delete urlDatabase[id]; // delete url
+  res.redirect('/urls'); // redirect to list of urls
+});
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
