@@ -7,11 +7,20 @@ app.set("view engine", "ejs");
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
+  v8xskF: "http://www.youtube.com",
+  g5fCvS: "http://www.facebook.com"
 };
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
+});
+
+app.get("/urls/:id", (req, res) => {
+  const id = req.params.id;
+  const longURL = urlDatabase[id];
+  const templateVars = { id: id, longURL: longURL };
+  res.render("urls_show", templateVars);
 });
 
 app.get("/", (req, res) => {

@@ -19,6 +19,8 @@
   <body>
     <main style="margin: 1em;">
       <h3>My URLs</h3>
+      <!-- add here  -->
+      <a href="#" class="btn btn-primary mb-3">Create New Short URL</a>
       <table class="table">
         <thead>
           <tr>
@@ -27,12 +29,12 @@
           </tr>
         </thead>
         <tbody>
-          <% for (let id in urls) { %>
+          <% Object.keys(urls).forEach(function(id) { %>
             <tr>
               <td><%= id %></td>
               <td><%= urls[id] %></td>
             </tr>
-          <% } %>
+          <% }); %>
         </tbody>
       </table>
     </main>
