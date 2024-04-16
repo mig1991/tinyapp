@@ -38,16 +38,32 @@ app.listen(PORT, () => {
 
 //Routes
 
-//Index
+//Home Route
+
+app.get("/", (req, res) => {
+  res.send("Hello!");
+});
+
+//Index - show all urls
 
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-//Create - Show the URLs form
-//GET /urls/new
 
+
+//Create - form submission and make new short url
+//
+
+app.post("/urls", (req, res) => {
+  const longURL = req.body.longURL;
+  const shortURL = generateUrlSafeRandomString();
+  urlDatabase[shortURL] = longURL;
+  res.redirect(`/urls/${shortURL}`);
+});
+
+//new url form
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -64,37 +80,15 @@ app.get("/urls/:id", (req, res) => {
 
 //Update - Saving submission from the "Edit URL" form
 //post /urls/:name
+
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;  // grab short url
   const newUrl = req.body.newLongURL;  // grab new url
-  urlDatabase[shortURL] = newUrl;  // Update the URL in the database
+  urlDatabase[shortURL] = newUrl;  // update database
   res.redirect('/urls');  // Redirect the user to the list of all urls
 });
 
-
-app.post("/urls", (req, res) => {
-  const longURL = req.body.longURL;
-  const shortURL = generateUrlSafeRandomString();
-  urlDatabase[shortURL] = longURL;
-  res.redirect(`/urls/${shortURL}`);
-});
-
-
-
-
-
-app.get("/u/:id", (req, res) => {
-  const shortURL = req.params.id;
-  const longURL = urlDatabase[shortURL];
-
-  if (longURL) {
-    res.redirect(longURL);
-  } else {
-    res.status(404).send('Not found');
-  }
-});
-
-
+//Delete url
 
 app.post('/urls/:id/delete', (req, res) => {
   const { id } = req.params; // extract id from the url
@@ -102,6 +96,21 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls'); // redirect to list of urls
 });
 
+//Edit
+
+//
+
+//Redirect
+app.get("/u/:id", (req, res) => {
+  const shortURL = req.params.id;
+  res.redirect(urlDatabase[shortURL]);
+});
+
+//Save
+
+
+
+//Other
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
