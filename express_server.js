@@ -4,18 +4,18 @@ const PORT = 8080; // default port 8080
 
 
 function generateUrlSafeRandomString() {
-  const characters =
+  const letters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
   let result = "";
-  const charactersLength = characters.length;
+  const lettersLength = characters.length;
   for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    result += letters.charAt(Math.floor(Math.random() * lettersLength));
   }
   return result;
 }
 
 
-
+app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -24,7 +24,7 @@ const urlDatabase = {
   v8xskF: "http://www.youtube.com",
   g5fCvS: "http://www.facebook.com",
 };
-app.use(express.urlencoded({ extended: true }));
+
 
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
