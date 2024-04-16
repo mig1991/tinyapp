@@ -5,6 +5,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 app.set("view engine", "ejs");
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
 //Middleware
 
@@ -47,10 +49,12 @@ app.get("/", (req, res) => {
 //Index - show all urls
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies['username'] // retrieve the username from cookies
+  };
   res.render("urls_index", templateVars);
 });
-
 
 
 //Create - form submission and make new short url
@@ -65,16 +69,24 @@ app.post("/urls", (req, res) => {
 
 //new url form
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies['username'] // pass the username cookie to the template
+  };
+  res.render("urls_new", templateVars);
 });
+
 
 //Read - show one url
 //GET /urls/:id -> id is a placeholder
 
 app.get("/urls/:id", (req, res) => {
-  const id = req.params.id; //gives us url
+  const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = { id: id, longURL: longURL };
+  const templateVars = {
+    id: id,
+    longURL: longURL,
+    username: req.cookies['username'] // pass the username cookie to the template
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -111,9 +123,13 @@ app.get("/u/:id", (req, res) => {
 
 
 //Other
-app.get("/", (req, res) => {
-  res.send("Hello!");
+// login form
+app.post('/login', (req, res) => {
+  const username = req.body.username;  // grab username from form submission
+  res.cookie('username', username);    // create cookie - 'username'
+  res.redirect('/urls');               // redirect back to urls
 });
+
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
