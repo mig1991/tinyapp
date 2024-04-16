@@ -5,6 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
   <title>URL Details</title>
+  <style>
+    body, html {
+        height: 100%; /* Required for full-height body */
+        margin: 0; /* Remove default margin */
+        font-family: 'Arial', sans-serif; /* Set font */
+        color: #ffffff; /* Set text color to white for visibility */
+    }
+    body::after {
+        content: ""; /* Required for pseudo-elements */
+        background: url('https://images.unsplash.com/photo-1561948955-570b270e7c36') no-repeat center center fixed; /* Your chosen image URL */
+        background-size: cover; /* Ensure the image covers the whole page */
+        opacity: 0.5; /* Set the opacity for translucency */
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        position: absolute; /* Absolute position to place it behind content */
+        z-index: -1; /* Place behind all other content */
+    }
+    .container, .footer {
+        background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for readable text */
+        padding: 15px; /* Padding for aesthetics */
+        border-radius: 8px; /* Rounded corners for container */
+    }
+</style>
 </head>
 <body>
   <%- include('partials/_header') %>
