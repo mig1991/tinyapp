@@ -90,7 +90,7 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//Update - Saving submission from the "Edit URL" form
+//Update - saving submission from the "Edit URL" form
 //post /urls/:name
 
 app.post("/urls/:id", (req, res) => {
@@ -123,11 +123,19 @@ app.get("/u/:id", (req, res) => {
 
 
 //Other
+
+
 // login form
 app.post('/login', (req, res) => {
   const username = req.body.username;  // grab username from form submission
   res.cookie('username', username);    // create cookie - 'username'
   res.redirect('/urls');               // redirect back to urls
+});
+
+//logout form
+app.post('/logout', (req, res) => {
+  res.clearCookie('username'); // Clear the username cookie
+  res.redirect('/urls');       // Redirect to the main page or login page
 });
 
 

@@ -10,11 +10,15 @@
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
     <h2>URL Details</h2>
+    <!-- display shortened url id. `id` is passed from express_server.js -->
     <p><strong>Shortened URL ID:</strong> <%= id %></p>
+     <!-- display original URL and make it a clickable link that opens in a new tab -->
     <p><strong>Original URL:</strong> <a href="<%= longURL %>" target="_blank"><%= longURL %></a></p>
 
     <!-- update url -->
     <form action="/urls/<%= id %>" method="POST">
+      <!-- Form for updating the existing url.
+         form POSTs data to `/urls/<id>`, where `<id>` is the id of the url to update -->
       <div class="form-group">
         <label for="newLongURL">Update URL:</label>
         <input type="text" id="newLongURL" name="newLongURL" class="form-control" value="<%= longURL %>" required>
