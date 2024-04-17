@@ -2,9 +2,9 @@
 
 //Dependencies & Configuration
 const express = require("express");
-const { urlDatabase, userDatabase } = require('./userData');
+const { urlDatabase, userDatabase } = require("./userData");
 const cookieParser = require("cookie-parser");
-const { addNewUser } = require('./userhelpers');
+const { addNewUser, generateRandomID } = require("./userHelpers");
 
 const app = express();
 const PORT = 8080;
@@ -13,22 +13,9 @@ app.use(cookieParser());
 
 //Middleware
 
-function generateUrlSafeRandomString() {
-  const letters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-  let result = "";
-  const lettersLength = letters.length;
-  for (let i = 0; i < 6; i++) {
-    result += letters.charAt(Math.floor(Math.random() * lettersLength));
-  }
-  return result;
-}
-
 app.use(express.urlencoded({ extended: true }));
 
 //Database
-
-
 
 //Listener
 
@@ -47,9 +34,12 @@ app.get("/", (req, res) => {
 //Index - show all urls
 
 app.get("/urls", (req, res) => {
+  const userID = req.cookies["user_id"]; // retrieve user_id from cookie
+  const user = userDatabase[userID]; // lookup user object; assign to user
+
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"], // retrieve the username from cookies
+    user: user, // pass the entire user object
   };
   res.render("urls_index", templateVars);
 });
@@ -59,17 +49,24 @@ app.get("/urls", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
-  const shortURL = generateUrlSafeRandomString();
+  const shortURL = generateRandomID();
   urlDatabase[shortURL] = longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
 //new url form
 app.get("/urls/new", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"], // pass the username cookie to the template
-  };
-  res.render("urls_new", templateVars);
+  const userID = req.cookies["user_id"];
+  const user = userDatabase[userID];
+
+  if (!user) {
+    res.redirect("/login");
+  } else {
+    const templateVars = {
+      user: user,
+    };
+    res.render("urls_new", templateVars);
+  }
 });
 
 //Read - show one url
@@ -78,12 +75,22 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = {
-    id: id,
-    longURL: longURL,
-    username: req.cookies["username"], // pass the username cookie to the template
-  };
-  res.render("urls_show", templateVars);
+
+  const userID = req.cookies["user_id"];
+  const user = userDatabase[userID];
+
+  if (!user) {
+    res.redirect("/login"); //redirect if no user found
+  } else {
+
+    const templateVars = {
+      id: id,
+      longURL: longURL,
+      user: user,
+    };
+    
+    res.render("urls_show", templateVars);
+  }
 });
 
 //Update - saving submission from the "Edit URL" form
@@ -123,17 +130,15 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-
   const { email, password } = req.body;
   const { user, error } = addNewUser(email, password, userDatabase);
 
   if (error) {
-    return res.render("register", { error: "Registration failed: " + error });
+    return res.render("register", { error: "Unable to register: " + error });
   }
 
-  res.cookie("email", email);
+  res.cookie("user_id", user.id);
   res.redirect("/urls");
-
 });
 
 //Other
