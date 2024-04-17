@@ -82,13 +82,12 @@ app.get("/urls/:id", (req, res) => {
   if (!user) {
     res.redirect("/login"); //redirect if no user found
   } else {
-
     const templateVars = {
       id: id,
       longURL: longURL,
       user: user,
     };
-    
+
     res.render("urls_show", templateVars);
   }
 });
@@ -131,13 +130,31 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
-  const { user, error } = addNewUser(email, password, userDatabase);
 
-  if (error) {
-    return res.render("register", { error: "Unable to register: " + error });
+  // if email and pass are empty, send message
+  if (!email || !password) {
+    console.log("Error: email and password fields need to be filled.");
+    return res.status(400).send("Email and password fields need to be filled.");
   }
 
-  res.cookie("user_id", user.id);
+  // if email is already registered, send 400 message
+  for (const userID in userDatabase) {
+    if (userDatabase[userID].email === email) {
+      console.log("Error: email is already registered.");
+      return res.status(400).send("Email is already registered.");
+    }
+  }
+
+  const newUser = {
+    id: generateRandomID(),
+    email: email,
+    password: password,
+  };
+
+  userDatabase[newUser.id] = newUser;
+  console.log("New user registered:", userDatabase);
+
+  res.cookie("user_id", newUser.id);
   res.redirect("/urls");
 });
 
