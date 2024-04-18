@@ -13,9 +13,6 @@ userHelpers.generateRandomID = () => {
   return result;
 };
 
-
-
-
 // function that makes adding a new user easier
 userHelpers.addNewUser = (email, password, userDatabase) => {
   if (!email || !password) {
@@ -39,5 +36,21 @@ userHelpers.addNewUser = (email, password, userDatabase) => {
   return { user: newUser, error: null };
 };
 
+
+userHelpers.validateRegistration = (email, password) => {
+  if (!email || !password) {
+    return { valid: false, error: "Fill out email and password" };
+  }
+  return { valid: true, error: null };
+};
+
+userHelpers.findUserViaEmail = (email, userDatabase) => {
+  for (const userID in userDatabase) {
+    if (userDatabase[userID].email === email) {
+      return userDatabase[userID]; // return user as object
+    }
+  }
+  return null; // user not found
+};
 
 module.exports = userHelpers;

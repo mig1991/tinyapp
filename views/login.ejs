@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Login</title>
     <style>
         body {
             background-color: #00000022; /* dark background */
@@ -25,6 +25,9 @@
             margin-bottom: 1.5rem; 
             height: 38px;
         }
+        .btn-primary {
+            width: 100%; /* wide button */
+        }
         .error-message {
             color: #dc3545; /* bootstrap 'danger' color for errors */
         }
@@ -32,8 +35,8 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center">Register</h1>
-        <form action="/register" method="POST">
+        <h1 class="text-center">Login</h1>
+        <form action="/login" method="POST">
             <div class="form-group">
                 <label for="email" class="form-label">Email:</label>
                 <input type="email" class="form-control" id="email" name="email" required>
@@ -43,11 +46,8 @@
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
             <div class="form-group">
-                <button type="submit" class="btn btn-primary">Register</button>
+                <button type="submit" class="btn btn-primary">Login</button>
             </div>
-            <% if (typeof error !== 'undefined') { %>
-                <p class="error-message"><%= error %></p>
-            <% } %>
         </form>
     </div>
 </body>

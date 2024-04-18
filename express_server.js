@@ -4,15 +4,19 @@
 const express = require("express");
 const { urlDatabase, userDatabase } = require("./userData");
 const cookieParser = require("cookie-parser");
-const { addNewUser, generateRandomID } = require("./userHelpers");
+const {
+  addNewUser,
+  generateRandomID,
+  validateRegistration,
+  findUserViaEmail,
+} = require("./userHelpers");
 
 const app = express();
 const PORT = 8080;
-app.set("view engine", "ejs");
-app.use(cookieParser());
 
 //Middleware
-
+app.set("view engine", "ejs");
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 //Database
@@ -122,7 +126,7 @@ app.get("/u/:id", (req, res) => {
 
 //Save
 
-//register
+//REGISTER
 
 app.get("/register", (req, res) => {
   res.render("register");
@@ -130,46 +134,52 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
-
-  // if email and pass are empty, send message
-  if (!email || !password) {
-    console.log("Error: email and password fields need to be filled.");
-    return res.status(400).send("Email and password fields need to be filled.");
+  const { valid, error } = validateRegistration(email, password);
+  if (!valid) {
+    return res.status(400).send(error);
   }
-
-  // if email is already registered, send 400 message
-  for (const userID in userDatabase) {
-    if (userDatabase[userID].email === email) {
-      console.log("Error: email is already registered.");
-      return res.status(400).send("Email is already registered.");
-    }
+  const userExists = findUserViaEmail(email, userDatabase);
+  if (userExists) {
+    return res.status(400).send("This email is already registered.");
   }
-
-  const newUser = {
-    id: generateRandomID(),
-    email: email,
-    password: password,
-  };
-
-  userDatabase[newUser.id] = newUser;
-  console.log("New user registered:", userDatabase);
-
-  res.cookie("user_id", newUser.id);
+  const { user, error: userError } = addNewUser(email, password, userDatabase);
+  if (userError) {
+    return res.status(400).send(userError);
+  }
+  res.cookie("user_id", user.id, { httpOnly: true });
   res.redirect("/urls");
 });
-
 //Other
 
-// login form
+// login forms
+
+app.get("/login", (req, res) => {
+  res.render("login"); // Assuming your login.ejs file is ready
+});
+
 app.post("/login", (req, res) => {
-  const username = req.body.username; // grab username from form submission
-  res.cookie("username", username); // create cookie - 'username'
-  res.redirect("/urls"); // redirect back to urls
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).send("Email and password must not be empty.");
+  }
+
+  const user = findUserViaEmail(email, userDatabase);
+  if (!user) {
+    return res.status(401).send("No account with that email address exists.");
+  }
+
+  // if (user.password !== password) {
+  //   return res.status(401).send("Password is incorrect.");
+  }
+
+  res.cookie("user_id", user.id);
+  res.redirect("/urls");
 });
 
 //logout form
 app.post("/logout", (req, res) => {
-  res.clearCookie("username"); // Clear the username cookie
+  res.clearCookie("user_id"); // Clear the id cookie
   res.redirect("/urls"); // Redirect to the main page or login page
 });
 
