@@ -52,9 +52,15 @@ app.get("/urls", (req, res) => {
 //
 
 app.post("/urls", (req, res) => {
-  const longURL = req.body.longURL;
+  const userID = req.cookies["user_id"];
+  if (!userID || !userDatabase[userID]) {
+    return res.status(403).send("Log in to shorten URLs.");
+  }
+
   const shortURL = generateRandomID();
-  urlDatabase[shortURL] = longURL;
+  const longURL = req.body.longURL;
+
+  urlDatabase[shortURL] = { longURL: longURL, userID: userID }; // Save the new URL with a reference to the user
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -63,8 +69,8 @@ app.get("/urls/new", (req, res) => {
   const userID = req.cookies["user_id"];
   const user = userDatabase[userID];
 
-  if (!user) {
-    res.redirect("/login");
+  if (!userID || !userDatabase[userID]) {
+    return res.redirect("/login");
   } else {
     const templateVars = {
       user: user,
@@ -121,7 +127,12 @@ app.post("/urls/:id/delete", (req, res) => {
 //Redirect
 app.get("/u/:id", (req, res) => {
   const shortURL = req.params.id;
-  res.redirect(urlDatabase[shortURL]);
+  if (!urlDatabase[shortURL]) {
+
+    return res.status(404).send("404 Error");
+  }
+  const longURL = urlDatabase[shortURL].longURL;
+  res.redirect(longURL);
 });
 
 //Save
@@ -129,6 +140,10 @@ app.get("/u/:id", (req, res) => {
 //REGISTER
 
 app.get("/register", (req, res) => {
+  const userID = req.cookies["user_id"]; //grab user id from cookie
+  if (userID && userDatabase[userID]) {
+    return res.redirect("/urls");
+  }
   res.render("register");
 });
 
@@ -154,7 +169,11 @@ app.post("/register", (req, res) => {
 // login forms
 
 app.get("/login", (req, res) => {
-  res.render("login"); // Assuming your login.ejs file is ready
+  const userID = req.cookies["user_id"];
+  if (userID && userDatabase[userID]) {
+    return res.redirect("/urls");
+  }
+  res.render("login"); // render the login page if not logged in
 });
 
 app.post("/login", (req, res) => {
