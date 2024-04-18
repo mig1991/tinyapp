@@ -1,30 +1,24 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-toggle="collapse"
-      data-target="#navbarNavAltMarkup"
-      aria-controls="navbarNavAltMarkup"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
+      <div class="navbar-nav mr-auto">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if (user) { %> <!-- check if user object exists -->
-          <span class="navbar-text ml-auto">
-            Logged in as: <%= user.email %> <!-- display the user's email -->
+      </div>
+      <div class="navbar-nav ml-auto">
+        <% if (user) { %>
+          <span class="navbar-text">
+            Logged in as: <%= user.email %> 
           </span>
           <form class="form-inline" action="/logout" method="POST">
-            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Log Out</button> <!-- Llgout button -->
+            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Log Out</button>
           </form>
-        <% } else { %> <!-- if no user is logged in, show login and register links -->
-          <a class="nav-item nav-link ml-auto" href="/login">Login</a>
+        <% } else { %>
+          <a class="nav-item nav-link" href="/login">Login</a>
           <a class="nav-item nav-link" href="/register">Register</a>
         <% } %>
       </div>

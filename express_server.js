@@ -160,19 +160,18 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).send("Email and password must not be empty.");
-  }
-
+  // does email exist
   const user = findUserViaEmail(email, userDatabase);
   if (!user) {
-    return res.status(401).send("No account with that email address exists.");
+    return res.status(403).send("User with that email does not exist.");
   }
 
-  // if (user.password !== password) {
-  //   return res.status(401).send("Password is incorrect.");
+  // is password correct
+  if (user.password !== password) {
+    return res.status(403).send("Password is incorrect.");
   }
 
+  // set cookie, redirect
   res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
@@ -180,7 +179,7 @@ app.post("/login", (req, res) => {
 //logout form
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id"); // Clear the id cookie
-  res.redirect("/urls"); // Redirect to the main page or login page
+  res.redirect("/login"); // Redirect to the main page or login page
 });
 
 app.get("/urls.json", (req, res) => {
