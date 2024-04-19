@@ -2,7 +2,7 @@
 
 //Dependencies & Configuration
 const express = require("express");
-const cookieSession = require('cookie-session');
+const cookieSession = require("cookie-session");
 const { urlDatabase, userDatabase } = require("./userData");
 const {
   addNewUser,
@@ -10,7 +10,7 @@ const {
   validateRegistration,
   findUserViaEmail,
   userURLs: urlsForUser,
-} = require("./userhelpers");
+} = require("./helpers");
 const bcrypt = require("bcryptjs");
 
 const app = express();

@@ -1,11 +1,11 @@
 /* eslint-disable func-style */
-const userHelpers = {};
+const helpers = {};
 const { urlDatabase, userDatabase } = require("./userData");
 const bcrypt = require("bcryptjs");
 
 
 // generates random id
-userHelpers.generateRandomID = () => {
+helpers.generateRandomID = () => {
   const letters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
   let result = "";
@@ -17,7 +17,7 @@ userHelpers.generateRandomID = () => {
 };
 
 // function that makes adding a new user easier
-userHelpers.addNewUser = (email, password, userDatabase) => {
+helpers.addNewUser = (email, password, userDatabase) => {
   if (!email || !password) {
     return { user: null, error: "Please fill in both fields" };
   }
@@ -29,7 +29,7 @@ userHelpers.addNewUser = (email, password, userDatabase) => {
   }
 
   const hashedPassword = bcrypt.hashSync(password, 5);  // hashing pass
-  const newID = userHelpers.generateRandomID();
+  const newID = helpers.generateRandomID();
   const newUser = {
     id: newID,
     email: email,
@@ -40,14 +40,14 @@ userHelpers.addNewUser = (email, password, userDatabase) => {
   return { user: newUser, error: null };
 };
 
-userHelpers.validateRegistration = (email, password) => {
+helpers.validateRegistration = (email, password) => {
   if (!email || !password) {
     return { valid: false, error: "Fill out email and password" };
   }
   return { valid: true, error: null };
 };
 
-userHelpers.findUserViaEmail = (email, userDatabase) => {
+helpers.findUserViaEmail = (email, userDatabase) => {
   for (const userID in userDatabase) {
     if (userDatabase[userID].email === email) {
       return userDatabase[userID]; // return user as object
@@ -56,7 +56,7 @@ userHelpers.findUserViaEmail = (email, userDatabase) => {
   return null; // user not found
 };
 
-userHelpers.userURLs = (id) => {
+helpers.userURLs = (id) => {
   const filteredUrls = {};
   for (const urlId in urlDatabase) {
     if (urlDatabase[urlId].userID === id) {
@@ -66,4 +66,4 @@ userHelpers.userURLs = (id) => {
   return filteredUrls;
 };
 
-module.exports = userHelpers;
+module.exports = helpers;
