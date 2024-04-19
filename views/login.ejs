@@ -31,10 +31,17 @@
         .error-message {
             color: #dc3545; /* bootstrap 'danger' color for errors */
         }
+        .register-link {
+            margin-top: 1rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <body>
+        <% if (typeof user === 'undefined') { user = {}; } %> <!-- Safely initialize user if it's undefined -->
+        <%- include('partials/_header') %> <!-- Include header partial -->
+        <div class="container">
         <h1 class="text-center">Login</h1>
         <form action="/login" method="POST">
             <div class="form-group">
@@ -49,6 +56,9 @@
                 <button type="submit" class="btn btn-primary">Login</button>
             </div>
         </form>
+        <div class="register-link">
+            <p>Not registered? <a href="/register">Register here</a></p>
+        </div>
     </div>
 </body>
 </html>

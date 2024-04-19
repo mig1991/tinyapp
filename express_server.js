@@ -33,7 +33,8 @@ app.use(express.json());
 //Home Route
 
 app.get("/", (req, res) => {
-  if (req.session && req.session.user_id) {
+  const userID = req.session.user_id;
+  if (userID && userDatabase[userID]) {
     res.redirect("/urls");
   } else {
     res.redirect("/login");
@@ -45,11 +46,12 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
   if (!userID || !userDatabase[userID]) {
-    return res.redirect("/login");
+    return res.status(401).render("error", { message: "You must be logged in to view URLs." });
   }
-  const userURLs = urlsForUser(userID);  // Using the imported function
+  const userURLs = urlsForUser(userID);
   res.render("urls_index", { urls: userURLs, user: userDatabase[userID] });
 });
+
 
 
 app.post("/urls", (req, res) => {
@@ -62,7 +64,8 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomID();
 
   urlDatabase[shortURL] = { longURL: longURL, userID: userID }; // save url to user
-  res.redirect(`/urls/${shortURL}`);
+  const newURL = req.protocol + '://' + req.get('host') + '/u/' + shortURL; // Construct the complete short URL
+  res.render("new_short_url", { newURL }); // Render a template containing the clickable link
 });
 
 //new url form
@@ -156,26 +159,43 @@ app.post("/urls/:id/delete", (req, res) => {
 //
 
 //Redirect
-app.get("/u/:id", (req, res) => {
+app.get("/urls/:id", (req, res) => {
+  const userID = req.session.user_id;
   const shortURL = req.params.id;
-  if (!urlDatabase[shortURL]) {
-    return res.status(404).send("404 Error");
-  }
-  const longURL = urlDatabase[shortURL].longURL;
-  res.redirect(longURL);
-});
+  const url = urlDatabase[shortURL];
 
+  // If user is not logged in
+  if (!userID) {
+    return res.status(401).render("error", { message: "You must be logged in to view this URL." });
+  }
+
+  // If URL for the given ID does not exist
+  if (!url) {
+    return res.status(404).render("error", { message: "URL not found." });
+  }
+
+  // If user is logged in but does not own the URL with the given ID
+  if (url.userID !== userID) {
+    return res.status(403).render("error", { message: "You do not have permission to view this URL." });
+  }
+
+  // Render HTML with site header and form containing the corresponding long URL and update button
+  res.render("urls_show", {
+    id: shortURL,
+    longURL: url.longURL,
+    user: userDatabase[userID],
+  });
+});
 //Save
 
 //REGISTER
 
 app.get("/register", (req, res) => {
-  const userID = req.session.user_id; //grab user id from cookie
-  if (userID && userDatabase[userID]) {
-    return res.redirect("/urls");
-  }
-  res.render("register");
+  const userID = req.session.user_id;
+  const user = userDatabase[userID]; // Retrieve user data from the database if logged in
+  res.render("register", { user }); // Pass the user data to the template
 });
+
 
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
@@ -220,12 +240,12 @@ app.get("/", (req, res) => {
 
 app.get("/login", (req, res) => {
   const userID = req.session.user_id;
-  if (userID && userDatabase[userID]) {
-    res.redirect("/urls");
-  } else {
-    res.render("login");
-  }
+  const user = userDatabase[userID] || null; // Ensure user is defined
+
+  res.render("login", { user }); // Pass the user variable to the template
 });
+
+
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
@@ -247,8 +267,8 @@ app.post("/login", (req, res) => {
 
 //logout form
 app.post("/logout", (req, res) => {
-  delete req.session.user_id;
-  res.redirect("/login"); // redirect to the main page or login page
+  req.session = null;  // This clears the session completely, effectively removing the session cookie
+  res.redirect("/login");
 });
 
 app.get("/urls.json", (req, res) => {
