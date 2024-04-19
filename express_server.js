@@ -46,12 +46,13 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
   if (!userID || !userDatabase[userID]) {
-    return res.status(401).render("error", { message: "You must be logged in to view URLs." });
+    return res.status(401).render("error", {
+      message: "You must be logged in to view URLs. <a href='/login'>Click here to login</a>."
+    });
   }
   const userURLs = urlsForUser(userID);
   res.render("urls_index", { urls: userURLs, user: userDatabase[userID] });
 });
-
 
 
 app.post("/urls", (req, res) => {
@@ -60,12 +61,15 @@ app.post("/urls", (req, res) => {
     return res.status(403).send("You must be logged in to shorten URLs.");
   }
 
-  const longURL = req.body.longURL;
+  let longURL = req.body.longURL;
+  if (!longURL.includes('://')) {
+    longURL = 'http://' + longURL;
+  }
   const shortURL = generateRandomID();
 
-  urlDatabase[shortURL] = { longURL: longURL, userID: userID }; // save url to user
-  const newURL = req.protocol + '://' + req.get('host') + '/u/' + shortURL; // Construct the complete short URL
-  res.render("new_short_url", { newURL }); // Render a template containing the clickable link
+  urlDatabase[shortURL] = { longURL: longURL, userID: userID };
+  const newURL = `${req.protocol}://${req.get('host')}/u/${shortURL}`;
+  res.render("new_short_url", { newURL });
 });
 
 //new url form
@@ -186,7 +190,17 @@ app.get("/urls/:id", (req, res) => {
     user: userDatabase[userID],
   });
 });
-//Save
+
+
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const urlEntry = urlDatabase[shortURL];
+  if (urlEntry) {
+    return res.redirect(urlEntry.longURL);
+  } else {
+    return res.status(404).send("Shortened URL not found.");
+  }
+});
 
 //REGISTER
 
@@ -249,22 +263,23 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-
-  // does email exist
   const user = findUserViaEmail(email, userDatabase);
+
   if (!user) {
-    return res.status(403).send("User with that email does not exist.");
+    return res.status(403).render("error", {
+      message: "User with that email does not exist. Please <a href='/login'>try again</a>."
+    });
   }
 
-  // is password correct
   if (!bcrypt.compareSync(password, user.password)) {
-    return res.status(403).send("Password incorrect.");
+    return res.status(403).render("error", {
+      message: "Password incorrect. Please <a href='/login'>try again</a>."
+    });
   }
-  // set cookie, redirect
+
   req.session.user_id = user.id;
   res.redirect("/urls");
 });
-
 //logout form
 app.post("/logout", (req, res) => {
   req.session = null;  // This clears the session completely, effectively removing the session cookie
