@@ -24,14 +24,14 @@
                 <% Object.keys(urls).forEach(function(id) { %>
                 <tr>
                     <td><%= id %></td>
-                    <td><a href="<%= urls[id] %>" target="_blank"><%= urls[id] %></a></td>
+                    <td><a href="<%= urls[id].longURL %>" target="_blank"><%= urls[id].longURL %></a></td>
                     <td>
                         <form method="POST" action="/urls/<%= id %>/delete" style="display: inline;">
                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
                     </td>
                     <td>
-                        <a href="/urls/<%= id %>" class="btn btn-info btn-sm">Edit</a> <!-- edit link -->
+                        <a href="/urls/<%= id %>/edit" class="btn btn-info btn-sm">Edit</a> <!-- edit link -->
                     </td>
                 </tr>
                 <% }); %>

@@ -3,19 +3,19 @@
 const urlDatabase = {
   b2xVn2: {
     longURL: "http://www.lighthouselabs.ca",
-    userID: "",
+    userID: "userRandomID",
   },
   s9m5xK: {
     longURL: "https://www.google.ca",
-    userID: "",
+    userID: "userRandomID2",
   },
   v8xskF: {
     longURL: "http://www.youtube.com",
-    userID: "",
+    userID: "userRandomID3",
   },
   g5fCvS: {
     longURL: "http://www.facebook.com",
-    userID: "",
+    userID: "userRandomID4",
   },
 };
 

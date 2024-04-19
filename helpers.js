@@ -66,4 +66,17 @@ helpers.userURLs = (id) => {
   return filteredUrls;
 };
 
+
+
+helpers.urlsForUser = (id) => {
+  let urls = {};
+  for (let urlId in urlDatabase) {
+    if (urlDatabase[urlId].userID === id) {
+      urls[urlId] = urlDatabase[urlId];
+    }
+  }
+  return urls;
+};
+
+
 module.exports = helpers;

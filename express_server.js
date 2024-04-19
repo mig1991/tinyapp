@@ -1,6 +1,3 @@
-/* eslint-disable func-style */
-
-//Dependencies & Configuration
 const express = require("express");
 const cookieSession = require("cookie-session");
 const { urlDatabase, userDatabase } = require("./userData");
@@ -14,26 +11,33 @@ const {
 const bcrypt = require("bcryptjs");
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
-//Middleware
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["key1", "key2"],
+    maxAge: 24 * 60 * 60 * 1000,
+  })
+);
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 //Database
 
 //Listener
-
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
 
 //Routes
 
 //Home Route
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (req.session && req.session.user_id) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 //Index - show all urls
@@ -41,21 +45,12 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const userID = req.session.user_id;
   if (!userID || !userDatabase[userID]) {
-    const message =
-      "Please Log in First. Please <a href='/login'>login</a> or <a href='/register'>register</a>.";
-    return res.status(401).send(`<html><body>${message}</body></html>`);
+    return res.redirect("/login");
   }
-
-  const userURLs = urlsForUser(userID); // get the urls for logged in user
-  const templateVars = {
-    urls: userURLs,
-    user: userDatabase[userID],
-  };
-  res.render("urls_index", templateVars);
+  const userURLs = urlsForUser(userID);  // Using the imported function
+  res.render("urls_index", { urls: userURLs, user: userDatabase[userID] });
 });
 
-//Create - form submission and make new short url
-//
 
 app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
@@ -72,16 +67,10 @@ app.post("/urls", (req, res) => {
 
 //new url form
 app.get("/urls/new", (req, res) => {
-  const userID = req.session.user_id;
-  const user = userDatabase[userID];
-
-  if (!userID || !userDatabase[userID]) {
-    return res.redirect("/login");
+  if (req.session && req.session.user_id) {
+    res.render("urls_new", { user: userDatabase[req.session.user_id] });
   } else {
-    const templateVars = {
-      user: user,
-    };
-    res.render("urls_new", templateVars);
+    res.redirect("/login");
   }
 });
 
@@ -89,40 +78,21 @@ app.get("/urls/new", (req, res) => {
 //GET /urls/:id -> id is a placeholder
 
 app.get("/urls/:id", (req, res) => {
-  const userID = req.session.user_id;
-  const user = userDatabase[userID];
-  const shortURL = req.params.id;
-
-  // if user is not logged in, show message with hyperlinks
-  if (!userID || !user) {
-    const message =
-      "Log in to view this page. Please <a href='/login'>login</a> or <a href='/register'>register</a>.";
-    return res.status(401).send(`<html><body>${message}</body></html>`);
+  if (!req.session || !req.session.user_id) {
+    return res.status(401).send("Log in required");
   }
-
-  // if url doesnt exist, show error message
-  const url = urlDatabase[shortURL];
+  const url = urlDatabase[req.params.id];
   if (!url) {
-    return res
-      .status(404)
-      .send("<html><body><h1>404 Error: URL not found</h1></body></html>");
+    return res.status(404).send("URL not found");
   }
-
-  // if user doesn't own url, then show no access message
-  if (url.userID !== userID) {
-    return res
-      .status(403)
-      .send(
-        "<html><body><h1>403 Access Denied: You do not have access to this URL.</h1></body></html>"
-      );
+  if (url.userID !== req.session.user_id) {
+    return res.status(403).send("Access denied");
   }
-
-  const templateVars = {
-    id: shortURL,
+  res.render("urls_show", {
+    id: req.params.id,
     longURL: url.longURL,
-    user: user,
-  };
-  res.render("urls_show", templateVars);
+    user: userDatabase[req.session.user_id],
+  });
 });
 
 //Update - saving submission from the "Edit URL" form
@@ -209,18 +179,30 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
+
+  // Check if email or password is empty
+  if (!email || !password) {
+    return res.status(400).send("Email and password cannot be empty.");
+  }
+
+  // Validate email and password
   const { valid, error } = validateRegistration(email, password);
   if (!valid) {
     return res.status(400).send(error);
   }
+
+  // Check if email already exists
   const userExists = findUserViaEmail(email, userDatabase);
   if (userExists) {
     return res.status(400).send("This email is already registered.");
   }
+
+  // Add new user to the database
   const { user, error: userError } = addNewUser(email, password, userDatabase);
   if (userError) {
     return res.status(400).send(userError);
   }
+
   req.session.user_id = user.id;
   res.redirect("/urls");
 });
@@ -228,12 +210,21 @@ app.post("/register", (req, res) => {
 
 // login forms
 
+app.get("/", (req, res) => {
+  if (!req.session.user_id) {
+    res.redirect("/login");
+  } else {
+    res.redirect("/urls"); // or some other page for logged-in users
+  }
+});
+
 app.get("/login", (req, res) => {
   const userID = req.session.user_id;
   if (userID && userDatabase[userID]) {
-    return res.redirect("/urls");
+    res.redirect("/urls");
+  } else {
+    res.render("login");
   }
-  res.render("login"); // render the login page if not logged in
 });
 
 app.post("/login", (req, res) => {
@@ -267,3 +258,16 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}!`);
+  });
+}
+
+module.exports = app; // Export app for testing purposes
