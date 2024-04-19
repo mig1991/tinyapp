@@ -2,8 +2,8 @@
 
 //Dependencies & Configuration
 const express = require("express");
+const cookieSession = require('cookie-session');
 const { urlDatabase, userDatabase } = require("./userData");
-const cookieParser = require("cookie-parser");
 const {
   addNewUser,
   generateRandomID,
@@ -18,7 +18,6 @@ const PORT = 8080;
 
 //Middleware
 app.set("view engine", "ejs");
-app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 //Database
@@ -40,7 +39,7 @@ app.get("/", (req, res) => {
 //Index - show all urls
 
 app.get("/urls", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   if (!userID || !userDatabase[userID]) {
     const message =
       "Please Log in First. Please <a href='/login'>login</a> or <a href='/register'>register</a>.";
@@ -59,7 +58,7 @@ app.get("/urls", (req, res) => {
 //
 
 app.post("/urls", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   if (!userID || !userDatabase[userID]) {
     return res.status(403).send("You must be logged in to shorten URLs.");
   }
@@ -73,7 +72,7 @@ app.post("/urls", (req, res) => {
 
 //new url form
 app.get("/urls/new", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const user = userDatabase[userID];
 
   if (!userID || !userDatabase[userID]) {
@@ -90,7 +89,7 @@ app.get("/urls/new", (req, res) => {
 //GET /urls/:id -> id is a placeholder
 
 app.get("/urls/:id", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const user = userDatabase[userID];
   const shortURL = req.params.id;
 
@@ -130,7 +129,7 @@ app.get("/urls/:id", (req, res) => {
 //post /urls/:name
 
 app.post("/urls/:id", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const shortURL = req.params.id;
   const newLongURL = req.body.newLongURL;
 
@@ -157,7 +156,7 @@ app.post("/urls/:id", (req, res) => {
 //Delete url
 
 app.post("/urls/:id/delete", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   const shortURL = req.params.id;
 
   // if url doesnt exist, give 404 error
@@ -201,7 +200,7 @@ app.get("/u/:id", (req, res) => {
 //REGISTER
 
 app.get("/register", (req, res) => {
-  const userID = req.cookies["user_id"]; //grab user id from cookie
+  const userID = req.session.user_id; //grab user id from cookie
   if (userID && userDatabase[userID]) {
     return res.redirect("/urls");
   }
@@ -222,7 +221,7 @@ app.post("/register", (req, res) => {
   if (userError) {
     return res.status(400).send(userError);
   }
-  res.cookie("user_id", user.id, { httpOnly: true });
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 //Other
@@ -230,7 +229,7 @@ app.post("/register", (req, res) => {
 // login forms
 
 app.get("/login", (req, res) => {
-  const userID = req.cookies["user_id"];
+  const userID = req.session.user_id;
   if (userID && userDatabase[userID]) {
     return res.redirect("/urls");
   }
@@ -251,13 +250,13 @@ app.post("/login", (req, res) => {
     return res.status(403).send("Password incorrect.");
   }
   // set cookie, redirect
-  res.cookie("user_id", user.id);
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
 //logout form
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id"); // Clear the id cookie
+  delete req.session.user_id;
   res.redirect("/login"); // Redirect to the main page or login page
 });
 
