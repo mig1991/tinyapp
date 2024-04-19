@@ -11,6 +11,7 @@ const {
   findUserViaEmail,
   userURLs: urlsForUser,
 } = require("./userhelpers");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 const PORT = 8080;
@@ -246,10 +247,9 @@ app.post("/login", (req, res) => {
   }
 
   // is password correct
-  if (user.password !== password) {
-    return res.status(403).send("Password is incorrect.");
+  if (!bcrypt.compareSync(password, user.password)) {
+    return res.status(403).send("Password incorrect.");
   }
-
   // set cookie, redirect
   res.cookie("user_id", user.id);
   res.redirect("/urls");

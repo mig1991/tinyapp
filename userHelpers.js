@@ -1,6 +1,7 @@
 /* eslint-disable func-style */
 const userHelpers = {};
 const { urlDatabase, userDatabase } = require("./userData");
+const bcrypt = require("bcryptjs");
 
 
 // generates random id
@@ -27,11 +28,12 @@ userHelpers.addNewUser = (email, password, userDatabase) => {
     }
   }
 
+  const hashedPassword = bcrypt.hashSync(password, 5);  // hashing pass
   const newID = userHelpers.generateRandomID();
   const newUser = {
     id: newID,
-    email,
-    password,
+    email: email,
+    password: hashedPassword, //storing hashed pass
   };
 
   userDatabase[newID] = newUser;
