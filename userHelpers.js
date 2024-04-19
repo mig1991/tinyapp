@@ -1,5 +1,7 @@
 /* eslint-disable func-style */
 const userHelpers = {};
+const { urlDatabase, userDatabase } = require("./userData");
+
 
 // generates random id
 userHelpers.generateRandomID = () => {
@@ -36,7 +38,6 @@ userHelpers.addNewUser = (email, password, userDatabase) => {
   return { user: newUser, error: null };
 };
 
-
 userHelpers.validateRegistration = (email, password) => {
   if (!email || !password) {
     return { valid: false, error: "Fill out email and password" };
@@ -51,6 +52,16 @@ userHelpers.findUserViaEmail = (email, userDatabase) => {
     }
   }
   return null; // user not found
+};
+
+userHelpers.userURLs = (id) => {
+  const filteredUrls = {};
+  for (const urlId in urlDatabase) {
+    if (urlDatabase[urlId].userID === id) {
+      filteredUrls[urlId] = urlDatabase[urlId];
+    }
+  }
+  return filteredUrls;
 };
 
 module.exports = userHelpers;
