@@ -248,7 +248,7 @@ app.post("/login", (req, res) => {
 //logout form
 app.post("/logout", (req, res) => {
   delete req.session.user_id;
-  res.redirect("/login"); // Redirect to the main page or login page
+  res.redirect("/login"); // redirect to the main page or login page
 });
 
 app.get("/urls.json", (req, res) => {
@@ -270,4 +270,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = app; // Export app for testing purposes
+module.exports = app;
